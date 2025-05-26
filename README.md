@@ -9,3 +9,10 @@ Model Classes: Author, Article, and Magazine with SQL-based persistence, validat
 Relationship Methods:
 Author: articles(), magazines(), add_article(), topic_areas(), most_prolific().
 Magazine: articles(), contributors(), article_titles(), contributing_authors(), top_publisher(), with_multiple_authors().
+Article: author(), magazine().
+Transaction Handling: Uses BEGIN TRANSACTION, COMMIT, and ROLLBACK for data integrity.
+Security: Parameterized SQL queries to prevent injection.
+Bonus Features:
+Magazine.top_publisher(): Finds the magazine with the most articles.
+Database indexes for query optimization.
+Interactive CLI tool (scripts/cli.py) for querying the database.
