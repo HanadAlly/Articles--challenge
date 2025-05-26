@@ -16,3 +16,5 @@ Bonus Features:
 Magazine.top_publisher(): Finds the magazine with the most articles.
 Database indexes for query optimization.
 Interactive CLI tool (scripts/cli.py) for querying the database.
+### Author 
+Ali Hanad Mohammed.
