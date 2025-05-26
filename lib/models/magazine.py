@@ -30,15 +30,15 @@ class Magazine:
 
     def save(self):
         conn = get_connection()
-        cursor = conn.cursor()
         try:
             conn.execute("BEGIN TRANSACTION")
+            cursor = conn.cursor()
             if self.id is None:
                 cursor.execute(
-                    "INSERT INTO magazines (name, category) VALUES (?, ?) RETURNING id",
+                    "INSERT INTO magazines (name, category) VALUES (?, ?)",
                     (self.name, self.category)
                 )
-                self.id = cursor.fetchone()['id']
+                self.id = cursor.lastrowid  # Get the ID of the inserted row
             else:
                 cursor.execute(
                     "UPDATE magazines SET name = ?, category = ? WHERE id = ?",
@@ -136,3 +136,19 @@ class Magazine:
         row = cursor.fetchone()
         conn.close()
         return cls(row['name'], row['category'], row['id']) if row else None
+
+    @classmethod
+    def with_multiple_authors(cls):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT m.* FROM magazines m
+            JOIN articles a ON m.id = a.magazine_id
+            GROUP BY m.id, m.name, m.category
+            HAVING COUNT(DISTINCT a.author_id) >= 2
+            """
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        return [cls(row['name'], row['category'], row['id']) for row in rows]

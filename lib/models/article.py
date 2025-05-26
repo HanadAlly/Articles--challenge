@@ -20,15 +20,15 @@ class Article:
 
     def save(self):
         conn = get_connection()
-        cursor = conn.cursor()
         try:
             conn.execute("BEGIN TRANSACTION")
+            cursor = conn.cursor()
             if self.id is None:
                 cursor.execute(
-                    "INSERT INTO articles (title, author_id, magazine_id) VALUES (?, ?, ?) RETURNING id",
+                    "INSERT INTO articles (title, author_id, magazine_id) VALUES (?, ?, ?)",
                     (self.title, self.author_id, self.magazine_id)
                 )
-                self.id = cursor.fetchone()['id']
+                self.id = cursor.lastrowid  
             else:
                 cursor.execute(
                     "UPDATE articles SET title = ?, author_id = ?, magazine_id = ? WHERE id = ?",

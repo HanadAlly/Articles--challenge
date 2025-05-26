@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS authors (
+ CREATE TABLE IF NOT EXISTS authors (
     id INTEGER PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
@@ -17,3 +17,6 @@ CREATE TABLE IF NOT EXISTS articles (
     FOREIGN KEY (author_id) REFERENCES authors(id),
     FOREIGN KEY (magazine_id) REFERENCES magazines(id)
 );
+
+CREATE INDEX idx_articles_author_id ON articles(author_id);
+CREATE INDEX idx_articles_magazine_id ON articles(magazine_id);

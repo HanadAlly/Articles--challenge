@@ -4,7 +4,7 @@ class Author:
     def __init__(self, name, id=None):
         self.id = id
         self._name = None
-        self.name = name  
+        self.name = name
 
     @property
     def name(self):
@@ -18,15 +18,15 @@ class Author:
 
     def save(self):
         conn = get_connection()
-        cursor = conn.cursor()
         try:
             conn.execute("BEGIN TRANSACTION")
+            cursor = conn.cursor()
             if self.id is None:
                 cursor.execute(
-                    "INSERT INTO authors (name) VALUES (?) RETURNING id",
+                    "INSERT INTO authors (name) VALUES (?)",
                     (self.name,)
                 )
-                self.id = cursor.fetchone()['id']
+                self.id = cursor.lastrowid  # Get the ID of the inserted row
             else:
                 cursor.execute(
                     "UPDATE authors SET name = ? WHERE id = ?",
@@ -84,6 +84,8 @@ class Author:
 
     def add_article(self, magazine, title):
         from lib.models.article import Article
+        if not isinstance(magazine, Magazine):
+            raise ValueError("Magazine must be a Magazine instance")
         article = Article(title, self.id, magazine.id)
         article.save()
         return article
@@ -102,3 +104,20 @@ class Author:
         rows = cursor.fetchall()
         conn.close()
         return [row['category'] for row in rows]
+
+    @classmethod
+    def most_prolific(cls):
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT a.* FROM authors a
+            JOIN articles ar ON a.id = ar.author_id
+            GROUP BY a.id, a.name
+            ORDER BY COUNT(ar.id) DESC
+            LIMIT 1
+            """
+        )
+        row = cursor.fetchone()
+        conn.close()
+        return cls(row['name'], row['id']) if row else None
